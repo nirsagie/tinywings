@@ -34,4 +34,4 @@ while running:
     # 4. Draw the game using the instance 'gfx'
     
     
-pygame.quit()                   
+pygame.quit()                    
