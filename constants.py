@@ -1,0 +1,20 @@
+import pygame
+
+# Screen Settings
+WIDTH, HEIGHT = 1600, 1200
+FPS = 60
+
+# Colors
+SKY_BLUE = (135, 206, 235)
+HILL_GREEN = (34, 139, 34)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+# Physics / Game Logic
+BIRD_SCREEN_X = 200
+# SCROLL_SPEED = 5
+HILL_AMPLITUDE = 100
+HILL_BASE_Y = 1000
+GRAVITY = 0.1
+FRICTION = 0.01
+DIVE_FORCE = 1
