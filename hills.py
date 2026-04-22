@@ -7,30 +7,28 @@ class Hills:
         
 
     def get_y(self, x):
-        """ The math that defines the landscape """
-        y = (HILL_AMPLITUDE * math.sin(x * 0.005 + self.seed) + 
-             30 * math.sin(x * 0.02 + self.seed) + 
-             20 * math.sin(x * 0.03 - self.seed) + HILL_BASE_Y)
-        # y=HILL_BASE_Y+HILL_AMPLITUDE*math.sin(x * 0.005 + self.seed)
-        return y
+        amp = HILL_AMPLITUDE * (1 + 0.3 * math.sin(x * 0.001 + self.seed))
+        return (
+            HILL_BASE_Y
+            + amp * math.sin((math.sqrt(7) * x + self.seed) / HILL_PERIOD)
+            + 0.5 * amp * math.sin((x + self.seed * 0.7) / (HILL_PERIOD * 0.5))
+        )
 
     def reset(self):
         self.seed = random.uniform(0, 1000)
 
     def get_slope(self, x):
-
-        
-        slope=(HILL_AMPLITUDE * 0.005 * math.cos(x * 0.005 + self.seed) + 
-               30 * 0.02 * math.cos(x * 0.02 + self.seed) + 
-               20 * 0.03 * math.cos(x * 0.03 - self.seed))
-        # slope =HILL_AMPLITUDE*0.005*math.cos(x * 0.005 + self.seed)
-        return slope
+        amp= HILL_AMPLITUDE * (1 + 0.3 * math.sin(x * 0.001 + self.seed))
+        return (
+            amp * math.sqrt(7) / HILL_PERIOD * math.cos((math.sqrt(7) * x + self.seed) / HILL_PERIOD)
+            + 0.5 * amp / (HILL_PERIOD * 0.5) * math.cos((x + self.seed * 0.7) / (HILL_PERIOD * 0.5))
+        )
     def draw(self, screen, distance, zoom):
         points = []
-        for screen_x in range(0, WIDTH + 11, 20):
+        for screen_x in range(0, WIDTH + 11, 10):
             world_x = distance + BIRD_SCREEN_X + (screen_x - BIRD_SCREEN_X) / zoom
             y = self.get_y(world_x)
-            screen_y = HEIGHT - (HEIGHT - y) * zoom
+            screen_y = HEIGHT - (HEIGHT - y) * zoom 
             points.append((screen_x, screen_y))
             
         points.append((WIDTH, HEIGHT))

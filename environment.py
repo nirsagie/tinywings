@@ -29,4 +29,4 @@ class Environment:
     def update(self, space_pressed=False):
         self.bird.update(self.distance, dive=space_pressed)
         self.distance += self.bird.vx
-        self.gfc.draw_all(self,self.bird.vt)
+        self.gfc.draw_all(self)

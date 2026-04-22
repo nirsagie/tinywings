@@ -1,3 +1,5 @@
+from tkinter import SEL
+
 import pygame
 import math
 from constants import *
@@ -5,7 +7,7 @@ from constants import *
 class Bird:
     def __init__(self, hills=None):
         self.image = pygame.image.load("img/bird.png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.image = pygame.transform.scale(self.image, (40, 40))
         
         self.hills = hills
         
@@ -37,7 +39,7 @@ class Bird:
         hill_y = self.hills.get_y(self.bird_x)
         slope = self.hills.get_slope(self.bird_x)
         angle = math.atan(slope)
-        
+        self.vt = self.vx * math.cos(angle) + self.vy * math.sin(angle)
         if self.y <= hill_y - 5:
             # באוויר
             self.vy += GRAVITY
@@ -49,16 +51,18 @@ class Bird:
             
         else:
             # על הקרקע → רק לאורך השיפוע
-            self.vt = self.vx * math.cos(angle) + self.vy * math.sin(angle)
+            
         
 
             # 🔥 שומר כיוון ומהירות מינימלית
-            if abs(self.vt) < 0.5:
-                self.vt = 0.5 if self.vx >= 0 else -0.5
+            if abs(self.vt) < 1:
+                self.vt = 1 if self.vx >= 0 else -1
 
             if dive and slope > 0:  # Only dive if slope is negative (going downhill)
-                self.vt += DIVE_FORCE * math.cos(angle)*0.3 # Add a small boost to help initiate the dive
-            
+                self.vt += DIVE_FORCE * math.cos(angle)*1 # Add a small boost to help initiate the dive
+            if dive and slope < -0.1 and self.vt>1:  # If diving while going uphill, reduce speed to simulate struggle
+                self.vt -= DIVE_FORCE * math.cos(angle)*1
+
             if not self.onground and self.vy >= 0:  # Just landed
                 self.landing(angle)
                 self.onground = True
@@ -69,8 +73,10 @@ class Bird:
             self.vx = abs(self.vt * math.cos(angle)) 
             self.vy = abs(self.vt) * math.sin(angle)
             
-            if  self.hills.get_slope(self.bird_x+self.vx)<slope and slope<0: # If we're moving fast and should lunch
-                self.vy-=abs(self.vt*math.sin(angle))*0.1 # Launch up based on speed, adjust multiplier for more/less launch
+            if   slope<0: # If we're moving fast and should lunch
+                self.vy-=abs(self.vt*math.sin(angle))*0.05 # Launch up based on speed, adjust multiplier for more/less launch
+
+            self.vt *= (1 - FRICTION)  # Apply friction to slow down on the ground
             
             
 
@@ -83,11 +89,11 @@ class Bird:
         #     print(angle, slope, self.vx, self.vy,dive)
     
     def landing(self,hillangle):
-        print("Landing check..."+str(self.countframes))
+        
         birdangle = math.atan(self.vy / self.vx) if self.vx != 0 else 0
         angle_diff = abs(birdangle - hillangle)
         if angle_diff < math.radians(30) and hillangle>0:  #the diffrence in angles is small enough and we're going downhill
-            self.vt *= 1.1  # Perfect landing, give a small boost
+            self.vt *= 1.01  # Perfect landing, give a small boost
             # print("Perfect landing!")
         elif angle_diff < math.radians(45) and hillangle>0:  # Acceptable landing
             self.vt *= 0.8
@@ -112,9 +118,10 @@ class Bird:
 
         self.countframes+=1
     def draw(self, screen, zoom):
-        scaled_width = max(1, int(50 * zoom))
-        scaled_height = max(1, int(50 * zoom))
+        scaled_width = max(1, int(40 * zoom))
+        scaled_height = max(1, int(40 * zoom))
         bird_image = pygame.transform.smoothscale(self.image, (scaled_width, scaled_height))
+        bird_image = pygame.transform.rotate(bird_image, -math.degrees(math.atan(self.vy / self.vx)) if self.vx != 0 else 0)
 
         screen_y = HEIGHT - (HEIGHT - self.y) * zoom
         x = int(BIRD_SCREEN_X - scaled_width / 2)
