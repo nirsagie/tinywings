@@ -7,6 +7,7 @@ from bird import Bird
 from hills import Hills
 from constants import *
 from graphics import Graphics
+
 class Environment:
     def __init__(self):
         self.hills = Hills()
@@ -14,6 +15,8 @@ class Environment:
         self.distance = 0
         self.reset()
         self.gfc = Graphics()
+
+
         self.update()
         
 
@@ -26,7 +29,8 @@ class Environment:
 
 
 
-    def update(self, space_pressed=False):
-        self.bird.update(self.distance, dive=space_pressed)
+    def update(self):
+        self.bird.update(self.distance)
         self.distance += self.bird.vx
         self.gfc.draw_all(self)
+        

@@ -23,17 +23,18 @@ while running:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     state = GAME
+                    env.gfc.target_zoom = 1.0  # Reset zoom when starting the game
         elif state == GAME:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r: 
                     env.reset() 
                     state = MENU
                 if event.key == pygame.K_SPACE:
-                    space_pressed = True
+                    env.bird.dive=True
                 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:              
-                    space_pressed = False    
+                    env.bird.dive=False   
         elif state == GAME_OVER:
             gfx.draw_game_over(env)
             if event.type == pygame.KEYDOWN:
@@ -49,11 +50,11 @@ while running:
         gfx.draw_menu(env)
 
     elif state == GAME:
-        env.update(space_pressed)
+        env.update()
         gfx.draw_all(env)
     if state == GAME_OVER:
         gfx.draw_game_over(env)
-        
+         
  # Commented out for still frame                 
     
     # 4. Draw the game using the instance 'gfx'

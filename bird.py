@@ -10,7 +10,7 @@ class Bird:
         self.image = pygame.transform.scale(self.image, (40, 40))
         self.gfx=graphics.Graphics()
         self.hills = hills
-        
+        self.highscore = 0
         
     def reset(self):
         
@@ -28,6 +28,7 @@ class Bird:
         self.onground = True
         self.g= GRAVITY
         self.last_landing_text=""
+        self.dive=False
         
 
 
@@ -42,7 +43,7 @@ class Bird:
             # באוויר
             self.vy += self.g  # Gravity
             
-            if dive and self.countframes/FPS < GAMETIME:  # Only allow diving before time is up
+            if self.dive and self.countframes/FPS < GAMETIME:  # Only allow diving before time is up
                 self.vy += DIVE_FORCE
             
             self.onground = False   
@@ -61,9 +62,9 @@ class Bird:
             if self.countframes/FPS < GAMETIME:
                 if abs(self.vt) < 5:
                     self.vt = max(self.vt, 5)  # Ensure minimum speed to keep the game moving
-                if dive and slope > 0:  # Only dive if slope is negative (going downhill)
+                if self.dive and slope > 0:  # Only dive if slope is negative (going downhill)
                     self.vt += DIVE_FORCE * math.cos(angle)*0.5 # Add a small boost to help initiate the dive
-                if dive and slope < -0.1 and self.vt>1:  # If diving while going uphill, reduce speed to simulate struggle
+                if self.dive and slope < -0.1 and self.vt>1:  # If diving while going uphill, reduce speed to simulate struggle
                     self.vt -= DIVE_FORCE * math.cos(angle)*0.5
             else:
                     self.vt *= 0.98  # Gradually slow down in the last seconds to create tension
@@ -75,7 +76,7 @@ class Bird:
             self.vx = abs(self.vt * math.cos(angle)) 
             self.vy = abs(self.vt) * math.sin(angle)
             
-            if   slope<0 and not dive: # If we're moving fast and should lunch
+            if   slope<0 and not self.dive: # If we're moving fast and should lunch
                 self.vy-=abs(self.vt*math.sin(angle))*0.05 # Launch up based on speed, adjust multiplier for more/less launch
 
             self.vt *= (1 - FRICTION)  # Apply friction to slow down on the ground
@@ -121,16 +122,16 @@ class Bird:
         self.jump_score=0
 
     
-    def update(self, distance, dive=False):
+    def update(self, distance):
         # print(f"Bird X: {self.bird_x:.2f}, Y: {self.y:.2f}, VX: {self.vx:.2f}, VY: {self.vy:.2f}")
         self.bird_x = distance + BIRD_SCREEN_X
         
-        self.physics(dive=dive)
+        self.physics()
         
         self.y += self.vy
         
         self.score += self.vx * 0.05  # Increment score based on distance traveled
-
+        self.highscore = max(self.highscore, self.score)
         self.countframes+=1
 
         
